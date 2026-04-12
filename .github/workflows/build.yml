@@ -24,16 +24,8 @@ jobs:
           pip3 install --user buildozer cython==0.29.33
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Fix libtool macros
-        run: |
-          sudo mkdir -p /usr/share/aclocal
-          sudo cp /usr/share/libtool/m4/*.m4 /usr/share/aclocal/ 2>/dev/null || true
-          sudo cp /usr/share/libtool/build-aux/m4/*.m4 /usr/share/aclocal/ 2>/dev/null || true
-          echo "✅ Libtool macros fixed"
-
       - name: Build with Buildozer
         run: |
-          export ACLOCAL_PATH=/usr/share/aclocal:$ACLOCAL_PATH
           buildozer android debug
 
       - name: Upload APK
