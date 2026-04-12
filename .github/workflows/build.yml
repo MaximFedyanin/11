@@ -26,6 +26,12 @@ jobs:
 
       - name: Build with Buildozer
         run: |
+          # Очистка кэша и настройки памяти для Gradle
+          export GRADLE_USER_HOME=$HOME/.gradle
+          export GRADLE_OPTS="-Dorg.gradle.daemon=false -Xmx3072m -XX:MaxMetaspaceSize=1024m"
+          export ORG_GRADLE_PROJECT_org.gradle.jvmargs="-Xmx3072m"
+          
+          # Запуск сборки
           buildozer android debug
 
       - name: Upload APK
