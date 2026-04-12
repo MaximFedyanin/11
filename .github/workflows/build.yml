@@ -25,7 +25,16 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Fix libtool macros
-        run: sudo cp /usr/share/libtool/m4/*.m4 /usr/share/aclocal/
+        run: |
+          # Try multiple possible paths for libtool macros
+          if [ -d /usr/share/libtool/aclocal ]; then
+            sudo cp /usr/share/libtool/aclocal/*.m4 /usr/share/aclocal/ 2>/dev/null || true
+          fi
+          if [ -d /usr/share/aclocal-1.16 ]; then
+            sudo cp /usr/share/aclocal-1.16/*.m4 /usr/share/aclocal/ 2>/dev/null || true
+          fi
+          # Install libtool if missing
+          sudo apt-get install -y libtool 2>/dev/null || true
 
       - name: Build with Buildozer
         run: |
