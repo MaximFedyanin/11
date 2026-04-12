@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -20,14 +20,12 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-pip python3-setuptools git cmake zip unzip openjdk-17-jdk autoconf automake libtool pkg-config m4
+          sudo apt-get install -y python3-pip python3-setuptools git cmake zip unzip default-jdk autoconf automake libtool pkg-config m4
           pip3 install --user buildozer cython==0.29.33
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Build with Buildozer
         run: |
-          # Выделяем память для Gradle (точки в именах переменных Bash запрещены)
-          export GRADLE_OPTS="-Xmx4096m -XX:MaxMetaspaceSize=2048m -Dorg.gradle.daemon=false"
           buildozer android debug
 
       - name: Upload APK
