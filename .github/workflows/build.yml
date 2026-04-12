@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04  # Используем стабильную версию
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -20,26 +20,49 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          # Устанавливаем Java 17, необходимую для API 33
           sudo apt-get install -y python3-pip python3-setuptools git cmake zip unzip openjdk-17-jdk autoconf automake libtool pkg-config m4
           pip3 install --user buildozer cython==0.29.33
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Build with Buildozer
-        env:
-          # Явно указываем Java 17 для Gradle
-          JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
-          # Выделяем 4 ГБ памяти для Gradle, чтобы избежать падения
-          GRADLE_OPTS: "-Xmx4g -XX:MaxPermSize=2g"
+      - name: Fix libtool macros (libffi)
         run: |
-          # Активируем настройки в сессии
+          sudo cp /usr/share/libtool/build-aux/m4/*.m4 /usr/share/aclocal/ 2>/dev/null || true
+          sudo cp /usr/share/libtool/m4/*.m4 /usr/share/aclocal/ 2>/dev/null || true
+
+      - name: Configure Java & Gradle for CI
+        run: |
+          # 1. Жёстко фиксируем Java 17
           export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
           export PATH=$JAVA_HOME/bin:$PATH
+          java -version
+
+          # 2. Отключаем Gradle Daemon и увеличиваем память
+          export GRADLE_OPTS="-Xmx4g -XX:MaxMetaspaceSize=2g -Dorg.gradle.daemon=false"
+          export GRADLE_USER_HOME=$HOME/.gradle
           
-          # Запуск сборки
+          # 3. Создаём gradle.properties с гарантированными настройками
+          mkdir -p ~/.gradle
+          cat > ~/.gradle/gradle.properties << EOF
+          org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=2g
+          org.gradle.daemon=false
+          org.gradle.caching=true
+          org.gradle.configureondemand=true
+          EOF
+
+      - name: Build with Buildozer
+        env:
+          JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+          P4A_JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+          GRADLE_OPTS: "-Xmx4g -XX:MaxMetaspaceSize=2g -Dorg.gradle.daemon=false"
+        run: |
+          # Очищаем кэш Gradle внутри dist, чтобы исключить конфликты состояний
+          rm -rf ~/.buildozer/android/platform/build-arm64-v8a/dists/englishlearning/.gradle 2>/dev/null || true
+          
+          # Запускаем сборку
           buildozer android debug
 
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
