@@ -26,7 +26,10 @@ jobs:
 
       - name: Fix libtool macros
         run: |
-          sudo cp /usr/share/libtool/build-aux/m4/*.m4 /usr/share/aclocal/
+          # Ищем и копируем все макросы libtool в папку aclocal, чтобы исправить ошибку libffi
+          sudo find /usr/share/libtool/ -name "*.m4" -exec sudo cp -f {} /usr/share/aclocal/ \;
+          sudo find /usr/share/aclocal-*/ -name "*.m4" -exec sudo cp -f {} /usr/share/aclocal/ \; 2>/dev/null || true
+          echo "Macros fix applied."
 
       - name: Build with Buildozer
         run: |
