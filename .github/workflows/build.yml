@@ -26,9 +26,12 @@ jobs:
 
       - name: Build with Buildozer
         run: |
-          # Настройки памяти для Gradle (без точек в именах переменных!)
-          export GRADLE_USER_HOME=$HOME/.gradle
-          export GRADLE_OPTS="-Dorg.gradle.daemon=false -Xmx3072m -XX:MaxMetaspaceSize=1024m -Dorg.gradle.jvmargs='-Xmx3072m'"
+          # Настройки памяти и окружения для Gradle
+          export GRADLE_OPTS="-Xmx4096m -XX:MaxMetaspaceSize=2048m -Dorg.gradle.daemon=false"
+          export ORG_GRADLE_PROJECT_org.gradle.jvmargs="-Xmx4096m"
+          
+          # Явно указываем версию Java для p4a
+          export P4A_java_VERSION=17
           
           # Запуск сборки
           buildozer android debug
