@@ -24,6 +24,21 @@ jobs:
           pip3 install --user buildozer cython==0.29.33
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
+      - name: Fix libtool macros for libffi
+        run: |
+          # Find and copy libtool macros to the standard location
+          sudo find /usr/share -name "libtool.m4" -exec cp {} /usr/share/aclocal/ \; 2>/dev/null || true
+          sudo find /usr/share -name "lt*.m4" -exec cp {} /usr/share/aclocal/ \; 2>/dev/null || true
+          # Also try alternative locations
+          if [ -d /usr/share/libtool/aclocal ]; then
+            sudo cp /usr/share/libtool/aclocal/*.m4 /usr/share/aclocal/ 2>/dev/null || true
+          fi
+          if [ -d /usr/share/aclocal-1.16 ]; then
+            sudo cp /usr/share/aclocal-1.16/*.m4 /usr/share/aclocal/ 2>/dev/null || true
+          fi
+          # Install additional autotools if needed
+          sudo apt-get install -y autotools-dev autoconf-archive 2>/dev/null || true
+
       - name: Build with Buildozer
         run: |
           buildozer android debug
