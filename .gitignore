@@ -1,0 +1,22 @@
+# Исключить папку сборки Buildozer (самое важное!)
+.buildozer/
+
+# Исключить кэш Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Исключить скомпилированные APK/артефакты
+bin/
+*.apk
+*.aab
+
+# Исключить логи
+*.log
+build_log.txt
+
+# Системные файлы
+.DS_Store
+Thumbs.db
