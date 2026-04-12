@@ -26,15 +26,12 @@ jobs:
 
       - name: Fix libtool macros
         run: |
-          # Try multiple possible paths for libtool macros
-          if [ -d /usr/share/libtool/aclocal ]; then
-            sudo cp /usr/share/libtool/aclocal/*.m4 /usr/share/aclocal/ 2>/dev/null || true
+          sudo apt-get install -y libtool pkg-config automake
+          # Надёжный поиск директории с макросами libtool
+          LIBTOOL_M4_DIR=$(sudo find /usr/share -name "libtool.m4" -exec dirname {} \; 2>/dev/null | head -n 1)
+          if [ -n "$LIBTOOL_M4_DIR" ]; then
+            sudo cp "$LIBTOOL_M4_DIR"/*.m4 /usr/share/aclocal/
           fi
-          if [ -d /usr/share/aclocal-1.16 ]; then
-            sudo cp /usr/share/aclocal-1.16/*.m4 /usr/share/aclocal/ 2>/dev/null || true
-          fi
-          # Install libtool if missing
-          sudo apt-get install -y libtool 2>/dev/null || true
 
       - name: Build with Buildozer
         run: |
