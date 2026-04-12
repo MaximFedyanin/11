@@ -20,19 +20,20 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-pip python3-setuptools git cmake zip unzip openjdk-11-jdk autoconf libtool pkg-config
+          sudo apt-get install -y python3-pip python3-setuptools git cmake zip unzip openjdk-11-jdk autoconf automake libtool pkg-config m4
           pip3 install --user buildozer cython==0.29.33
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Fix libtool macros
         run: |
-          # Ищем и копируем все макросы libtool в папку aclocal, чтобы исправить ошибку libffi
-          sudo find /usr/share/libtool/ -name "*.m4" -exec sudo cp -f {} /usr/share/aclocal/ \;
-          sudo find /usr/share/aclocal-*/ -name "*.m4" -exec sudo cp -f {} /usr/share/aclocal/ \; 2>/dev/null || true
-          echo "Macros fix applied."
+          sudo mkdir -p /usr/share/aclocal
+          sudo cp /usr/share/libtool/m4/*.m4 /usr/share/aclocal/ 2>/dev/null || true
+          sudo cp /usr/share/libtool/build-aux/m4/*.m4 /usr/share/aclocal/ 2>/dev/null || true
+          echo "✅ Libtool macros fixed"
 
       - name: Build with Buildozer
         run: |
+          export ACLOCAL_PATH=/usr/share/aclocal:$ACLOCAL_PATH
           buildozer android debug
 
       - name: Upload APK
