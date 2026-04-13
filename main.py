@@ -25,8 +25,29 @@ Config.set('graphics', 'multisamples', '0')
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 Window.clearcolor = (0.95, 0.95, 0.95, 1)
 
-# Пути к базе данных
-DB_PATH = '/sdcard/english_learning_app/database/words.db'
+# Пути к базе данных (универсально для Android и ПК)
+def get_db_path():
+    """Возвращает правильный путь к БД в зависимости от платформы"""
+    try:
+        # Для Android: используем приватную папку приложения
+        user_dir = App.get_running_app().user_data_dir
+        db_path = os.path.join(user_dir, 'words.db')
+        
+        # Если базы нет в user_data_dir — копируем из ресурсов при первом запуске
+        if not os.path.exists(db_path):
+            # Путь к исходной базе внутри APK
+            source_db = os.path.join(App.get_running_app().source_dir, 'database', 'words.db')
+            if os.path.exists(source_db):
+                os.makedirs(user_dir, exist_ok=True)
+                import shutil
+                shutil.copy2(source_db, db_path)
+                print(f"✓ База скопирована в: {db_path}")
+        return db_path
+    except:
+        # Для ПК: оставляем старый путь как запасной вариант
+        return '/sdcard/english_learning_app/database/words.db'
+
+DB_PATH = get_db_path()
 
 # ============================================================================
 # КЛАССЫ ЭКРАНОВ
