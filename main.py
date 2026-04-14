@@ -26,26 +26,27 @@ Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 Window.clearcolor = (0.95, 0.95, 0.95, 1)
 
 # Пути к базе данных (универсально для Android и ПК)
+# Функция для получения правильного пути к БД
 def get_db_path():
-    """Возвращает правильный путь к БД в зависимости от платформы"""
     try:
-        # Для Android: используем приватную папку приложения
-        user_dir = App.get_running_app().user_data_dir
+        app = App.get_running_app()
+        user_dir = app.user_data_dir
         db_path = os.path.join(user_dir, 'words.db')
         
-        # Если базы нет в user_data_dir — копируем из ресурсов при первом запуске
+        # Если базы нет в приватной папке — копируем её из ресурсов приложения
         if not os.path.exists(db_path):
-            # Путь к исходной базе внутри APK
-            source_db = os.path.join(App.get_running_app().source_dir, 'database', 'words.db')
+            source_db = os.path.join(app.source_dir, 'database', 'words.db')
             if os.path.exists(source_db):
-                os.makedirs(user_dir, exist_ok=True)
                 import shutil
+                os.makedirs(user_dir, exist_ok=True)
                 shutil.copy2(source_db, db_path)
-                print(f"✓ База скопирована в: {db_path}")
+                print(f"[INFO] База данных скопирована в: {db_path}")
+            else:
+                print(f"[ERROR] Исходная база не найдена: {source_db}")
         return db_path
-    except:
-        # Для ПК: оставляем старый путь как запасной вариант
-        return '/sdcard/english_learning_app/database/words.db'
+    except Exception as e:
+        print(f"[ERROR] Ошибка инициализации БД: {e}")
+        return None
 
 DB_PATH = get_db_path()
 
