@@ -28,40 +28,67 @@ Window.clearcolor = (0.95, 0.95, 0.95, 1)
 DB_PATH = None
 
 # Функция инициализации БД (вызывается ВНУТРИ App.build())
-def get_correct_db_path():
-    """
-    Получает правильный путь к базе данных.
-    На Android копирует БД из ресурсов в личную папку приложения.
-    """
+def get_db_path():
+    """Получает правильный путь к базе данных для Android"""
     app = App.get_running_app()
     
-    # 1. Путь к личной папке приложения (разрешена для записи на Android)
+    # Для Android используем user_data_dir (приватная папка приложения)
     user_dir = app.user_data_dir
     
-    # 2. Имя файла базы
-    db_name = 'words.db' 
-    target_db_path = os.path.join(user_dir, db_name)
+    # Путь к базе данных
+    db_path = os.path.join(user_dir, 'words.db')
     
-    # 3. Если базы в личной папке нет — копируем её из ресурсов
-    if not os.path.exists(target_db_path):
+    # Если базы нет — копируем из ресурсов
+    if not os.path.exists(db_path):
         try:
-            # Путь к исходной базе внутри APK (в папке database)
-            # source_dir указывает на корень вашего проекта внутри APK
-            source_db_path = os.path.join(app.source_dir, 'database', db_name)
+            # Для Android ресурсы находятся в assets
+            # Buildozer автоматически копирует файлы из папки database
+            source_db = os.path.join(app.source_dir, 'database', 'words.db') if hasattr(app, 'source_dir') else None
             
-            if os.path.exists(source_db_path):
+            # Альтернативный способ — ищем в папке приложения
+            if not source_db or not os.path.exists(source_db):
+                # Пытаемся найти в текущей директории
+                possible_paths = [
+                    os.path.join(os.path.dirname(__file__), 'database', 'words.db'),
+                    os.path.join(os.getcwd(), 'database', 'words.db'),
+                ]
+                for path in possible_paths:
+                    if os.path.exists(path):
+                        source_db = path
+                        break
+            
+            if source_db and os.path.exists(source_db):
+                import shutil
                 os.makedirs(user_dir, exist_ok=True)
-                shutil.copy2(source_db_path, target_db_path)
-                print(f"✅ База данных скопирована в: {target_db_path}")
+                shutil.copy2(source_db, db_path)
+                print(f"[INFO] База данных скопирована в: {db_path}")
             else:
-                print(f"❌ ОШИБКА: Исходная база не найдена в {source_db_path}")
+                print(f"[WARNING] Исходная база не найдена. Создаем пустую.")
+                # Создаем пустую базу если исходная не найдена
+                conn = sqlite3.connect(db_path)
+                cursor = conn.cursor()
+                # Создаем таблицу words если нужно
+                cursor.execute('''
+                    CREATE TABLE IF NOT EXISTS words (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        english TEXT NOT NULL,
+                        russian TEXT NOT NULL,
+                        category TEXT,
+                        learned INTEGER DEFAULT 0
+                    )
+                ''')
+                conn.commit()
+                conn.close()
+                
         except Exception as e:
-            print(f"❌ Ошибка копирования базы: {e}")
-            
-    return target_db_path
+            print(f"[ERROR] Ошибка копирования базы: {e}")
+            import traceback
+            traceback.print_exc()
+    
+    return db_path
 
-# Инициализируем правильный путь
-DB_PATH = get_correct_db_path()
+# Инициализируем путь к БД
+DB_PATH = get_db_path()
 
 # ============================================================================
 # КЛАССЫ ЭКРАНОВ
