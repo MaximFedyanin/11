@@ -5,6 +5,7 @@
 import os
 import sys
 import sqlite3
+import shutil
 from datetime import datetime
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition
@@ -27,29 +28,40 @@ Window.clearcolor = (0.95, 0.95, 0.95, 1)
 DB_PATH = None
 
 # Функция инициализации БД (вызывается ВНУТРИ App.build())
-def setup_database():
-    global DB_PATH
-    try:
-        app = App.get_running_app()
-        user_dir = app.user_data_dir
-        db_path = os.path.join(user_dir, 'words.db')
-
-        # Если базы нет в приватной папке — копируем её из ресурсов приложения
-        if not os.path.exists(db_path):
-            source_db = os.path.join(app.source_dir, 'database', 'words.db')
-            if os.path.exists(source_db):
-                import shutil
+def get_correct_db_path():
+    """
+    Получает правильный путь к базе данных.
+    На Android копирует БД из ресурсов в личную папку приложения.
+    """
+    app = App.get_running_app()
+    
+    # 1. Путь к личной папке приложения (разрешена для записи на Android)
+    user_dir = app.user_data_dir
+    
+    # 2. Имя файла базы
+    db_name = 'words.db' 
+    target_db_path = os.path.join(user_dir, db_name)
+    
+    # 3. Если базы в личной папке нет — копируем её из ресурсов
+    if not os.path.exists(target_db_path):
+        try:
+            # Путь к исходной базе внутри APK (в папке database)
+            # source_dir указывает на корень вашего проекта внутри APK
+            source_db_path = os.path.join(app.source_dir, 'database', db_name)
+            
+            if os.path.exists(source_db_path):
                 os.makedirs(user_dir, exist_ok=True)
-                shutil.copy2(source_db, db_path)
-                print(f"[INFO] База данных скопирована в: {db_path}")
+                shutil.copy2(source_db_path, target_db_path)
+                print(f"✅ База данных скопирована в: {target_db_path}")
             else:
-                print(f"[ERROR] Исходная база не найдена: {source_db}")
-                return False
-        DB_PATH = db_path
-        return True
-    except Exception as e:
-        print(f"[ERROR] Ошибка инициализации БД: {e}")
-        return False
+                print(f"❌ ОШИБКА: Исходная база не найдена в {source_db_path}")
+        except Exception as e:
+            print(f"❌ Ошибка копирования базы: {e}")
+            
+    return target_db_path
+
+# Инициализируем правильный путь
+DB_PATH = get_correct_db_path()
 
 # ============================================================================
 # КЛАССЫ ЭКРАНОВ
