@@ -24,9 +24,6 @@ Config.set('graphics', 'multisamples', '0')
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 Window.clearcolor = (0.95, 0.95, 0.95, 1)
 
-# Глобальная переменная для пути к БД
-self.db_path = None
-
 # ============================================================================
 # КЛАССЫ ЭКРАНОВ
 # ============================================================================
@@ -415,7 +412,7 @@ class TrainingScreen(Screen):
 
 class EnglishLearningApp(App):
     """Основной класс приложения"""
-    def get_self.db_path(self):
+    def get_db_path(self):
         """Возвращает путь к базе данных (вызывать только после запуска приложения!)"""
         # Приватная папка приложения на Android
         user_dir = self.user_data_dir
