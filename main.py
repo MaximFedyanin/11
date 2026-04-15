@@ -483,7 +483,68 @@ class TrainingScreen(Screen):
 
 class EnglishLearningApp(App):
     """Основной класс приложения"""
+    def get_db_path(self):
+        """Возвращает путь к базе данных (вызывать только после запуска приложения!)"""
+        # Приватная папка приложения на Android
+        user_dir = self.user_data_dir
+        db_path = os.path.join(user_dir, 'words.db')
+        
+        # Если базы нет — копируем из assets при первом запуске
+        if not os.path.exists(db_path):
+            try:
+                # На Android Buildozer кладёт файлы из android.add_assets в папку _python_bundle
+                # Пытаемся найти базу в нескольких возможных местах
+                possible_sources = [
+                    os.path.join(self.source_dir, 'database', 'words.db') if hasattr(self, 'source_dir') else None,
+                    os.path.join(os.getcwd(), 'database', 'words.db'),
+                    os.path.join(os.path.dirname(__file__), 'database', 'words.db'),
+                ]
+                
+                source_db = next((p for p in possible_sources if p and os.path.exists(p)), None)
+                
+                if source_db:
+                    os.makedirs(user_dir, exist_ok=True)
+                    shutil.copy2(source_db, db_path)
+                    print(f"[INFO] ✅ База скопирована: {db_path}")
+                else:
+                    # Если исходная база не найдена — создаём пустую с нужной структурой
+                    print(f"[WARNING] ⚠️ Исходная база не найдена, создаём пустую")
+                    conn = sqlite3.connect(db_path)
+                    cursor = conn.cursor()
+                    cursor.execute('''
+                        CREATE TABLE IF NOT EXISTS words (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            english TEXT NOT NULL,
+                            russian TEXT NOT NULL,
+                            category TEXT,
+                            learned INTEGER DEFAULT 0
+                        )
+                    ''')
+                    conn.commit()
+                    conn.close()
+            except Exception as e:
+                print(f"[ERROR] ❌ Ошибка инициализации БД: {e}")
+                import traceback
+                traceback.print_exc()
+    
+        return db_path
+
     def build(self):
+        # ✅ Инициализируем БД только здесь, когда app уже запущен
+        self.db_path = self.get_db_path()
+        print(f"[DEBUG] Путь к БД: {self.db_path}")
+        
+        # Проверка: есть ли данные в базе
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            cursor.execute("SELECT COUNT(*) FROM words")
+            count = cursor.fetchone()[0]
+            print(f"[DEBUG] В базе {count} слов")
+            conn.close()
+        except Exception as e:
+            print(f"[ERROR] Не удалось прочитать базу: {e}")
+
         # 1. Сначала настраиваем БД
         if not setup_database():
             return Label(text="Ошибка инициализации БД", halign='center', valign='middle')
