@@ -460,7 +460,7 @@ class EnglishLearningApp(App):
 
     def build(self):
         # ✅ Инициализируем БД только здесь, когда app уже запущен
-        self.db_path = self.get_self.db_path()
+        self.db_path = self.get_db_path()
         print(f"[DEBUG] Путь к БД: {self.self.db_path}")
         
         # Проверка: есть ли данные в базе
