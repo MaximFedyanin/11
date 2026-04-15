@@ -29,45 +29,50 @@ DB_PATH = None
 
 # Функция инициализации БД (вызывается ВНУТРИ App.build())
 def get_db_path():
-    """Получает правильный путь к базе данных для Android"""
+    """Возвращает безопасный путь к базе данных для Android"""
     app = App.get_running_app()
     
-    # Для Android используем user_data_dir (приватная папка приложения)
+    # Приватная папка приложения (работает на Android, iOS, Desktop)
     user_dir = app.user_data_dir
     
-    # Путь к базе данных
+    # Путь к базе в приватной папке
     db_path = os.path.join(user_dir, 'words.db')
     
-    # Если базы нет — копируем из ресурсов
+    # Если базы нет — копируем из ресурсов при первом запуске
     if not os.path.exists(db_path):
         try:
-            # Для Android ресурсы находятся в assets
-            # Buildozer автоматически копирует файлы из папки database
-            source_db = os.path.join(app.source_dir, 'database', 'words.db') if hasattr(app, 'source_dir') else None
+            # Ищем исходную базу в ресурсах приложения
+            # Buildozer копирует папку database/ внутрь APK
+            source_db = None
             
-            # Альтернативный способ — ищем в папке приложения
-            if not source_db or not os.path.exists(source_db):
-                # Пытаемся найти в текущей директории
-                possible_paths = [
-                    os.path.join(os.path.dirname(__file__), 'database', 'words.db'),
-                    os.path.join(os.getcwd(), 'database', 'words.db'),
-                ]
-                for path in possible_paths:
-                    if os.path.exists(path):
-                        source_db = path
-                        break
+            # Вариант 1: через source_dir (может работать)
+            if hasattr(app, 'source_dir') and app.source_dir:
+                candidate = os.path.join(app.source_dir, 'database', 'words.db')
+                if os.path.exists(candidate):
+                    source_db = candidate
             
-            if source_db and os.path.exists(source_db):
-                import shutil
+            # Вариант 2: ищем в текущей рабочей директории
+            if not source_db:
+                candidate = os.path.join(os.getcwd(), 'database', 'words.db')
+                if os.path.exists(candidate):
+                    source_db = candidate
+            
+            # Вариант 3: ищем относительно __file__
+            if not source_db:
+                candidate = os.path.join(os.path.dirname(__file__), 'database', 'words.db')
+                if os.path.exists(candidate):
+                    source_db = candidate
+            
+            if source_db:
                 os.makedirs(user_dir, exist_ok=True)
+                import shutil
                 shutil.copy2(source_db, db_path)
-                print(f"[INFO] База данных скопирована в: {db_path}")
+                print(f"[INFO] ✅ База скопирована: {source_db} → {db_path}")
             else:
-                print(f"[WARNING] Исходная база не найдена. Создаем пустую.")
-                # Создаем пустую базу если исходная не найдена
+                print(f"[WARNING] ⚠️ Исходная база не найдена. Создаём пустую.")
+                # Создаём минимальную структуру БД если исходная не найдена
                 conn = sqlite3.connect(db_path)
                 cursor = conn.cursor()
-                # Создаем таблицу words если нужно
                 cursor.execute('''
                     CREATE TABLE IF NOT EXISTS words (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -81,13 +86,13 @@ def get_db_path():
                 conn.close()
                 
         except Exception as e:
-            print(f"[ERROR] Ошибка копирования базы: {e}")
+            print(f"[ERROR] ❌ Ошибка инициализации БД: {e}")
             import traceback
             traceback.print_exc()
     
     return db_path
 
-# Инициализируем путь к БД
+# Инициализируем путь
 DB_PATH = get_db_path()
 
 # ============================================================================
