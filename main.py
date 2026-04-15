@@ -25,7 +25,7 @@ Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 Window.clearcolor = (0.95, 0.95, 0.95, 1)
 
 # Глобальная переменная для пути к БД
-DB_PATH = None
+self.db_path = None
 
 # ============================================================================
 # КЛАССЫ ЭКРАНОВ
@@ -261,7 +261,7 @@ class TrainingScreen(Screen):
     def load_words(self, topic, level, mode):
         """Загрузка слов для сессии"""
         from smart_search import SimpleWordSearch
-        search = SimpleWordSearch(DB_PATH)
+        search = SimpleWordSearch(self.db_path)
         
         if mode == 'new_words':
             self.words_queue = search.find_unanswered_words(keywords=[topic], level=level, limit=20)
@@ -391,7 +391,7 @@ class TrainingScreen(Screen):
         attempt_num = 1 # Упрощено для примера
         
         try:
-            conn = sqlite3.connect(DB_PATH)
+            conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
             cursor.execute('''INSERT INTO user_progress
                               (user_id, word_id, session_date, session_time, result, response_time, attempt_number)
@@ -415,14 +415,14 @@ class TrainingScreen(Screen):
 
 class EnglishLearningApp(App):
     """Основной класс приложения"""
-    def get_db_path(self):
+    def get_self.db_path(self):
         """Возвращает путь к базе данных (вызывать только после запуска приложения!)"""
         # Приватная папка приложения на Android
         user_dir = self.user_data_dir
-        db_path = os.path.join(user_dir, 'words.db')
+        self.db_path = os.path.join(user_dir, 'words.db')
         
         # Если базы нет — копируем из assets при первом запуске
-        if not os.path.exists(db_path):
+        if not os.path.exists(self.db_path):
             try:
                 # На Android Buildozer кладёт файлы из android.add_assets в папку _python_bundle
                 # Пытаемся найти базу в нескольких возможных местах
@@ -436,12 +436,12 @@ class EnglishLearningApp(App):
                 
                 if source_db:
                     os.makedirs(user_dir, exist_ok=True)
-                    shutil.copy2(source_db, db_path)
-                    print(f"[INFO] ✅ База скопирована: {db_path}")
+                    shutil.copy2(source_db, self.db_path)
+                    print(f"[INFO] ✅ База скопирована: {self.db_path}")
                 else:
                     # Если исходная база не найдена — создаём пустую с нужной структурой
                     print(f"[WARNING] ⚠️ Исходная база не найдена, создаём пустую")
-                    conn = sqlite3.connect(db_path)
+                    conn = sqlite3.connect(self.db_path)
                     cursor = conn.cursor()
                     cursor.execute('''
                         CREATE TABLE IF NOT EXISTS words (
@@ -459,16 +459,16 @@ class EnglishLearningApp(App):
                 import traceback
                 traceback.print_exc()
     
-        return db_path
+        return self.db_path
 
     def build(self):
         # ✅ Инициализируем БД только здесь, когда app уже запущен
-        self.db_path = self.get_db_path()
-        print(f"[DEBUG] Путь к БД: {self.db_path}")
+        self.self.db_path = self.get_self.db_path()
+        print(f"[DEBUG] Путь к БД: {self.self.db_path}")
         
         # Проверка: есть ли данные в базе
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = sqlite3.connect(self.self.db_path)
             cursor = conn.cursor()
             cursor.execute("SELECT COUNT(*) FROM words")
             count = cursor.fetchone()[0]
