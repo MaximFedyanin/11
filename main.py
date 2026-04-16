@@ -461,11 +461,11 @@ class EnglishLearningApp(App):
     def build(self):
         # ✅ Инициализируем БД только здесь, когда app уже запущен
         self.db_path = self.get_db_path()
-        print(f"[DEBUG] Путь к БД: {self.self.db_path}")
+        print(f"[DEBUG] Путь к БД: {self.db_path}")
         
         # Проверка: есть ли данные в базе
         try:
-            conn = sqlite3.connect(self.self.db_path)
+            conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
             cursor.execute("SELECT COUNT(*) FROM words")
             count = cursor.fetchone()[0]
