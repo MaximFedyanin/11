@@ -17,6 +17,10 @@ from kivy.uix.popup import Popup
 from kivy.clock import Clock
 from kivy.config import Config
 from kivy.core.window import Window
+from kivy.core.text import LabelBase
+
+# Регистрация шрифта с поддержкой эмоджи (системный шрифт)
+LabelBase.register(name='emoji', fn_regular='/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf')
 
 Config.set('graphics', 'multisamples', '0')
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
@@ -58,15 +62,15 @@ class WelcomeScreen(Screen):
         # Верхняя панель с кнопкой выбора цвета
         top_layout = BoxLayout(orientation='horizontal', size_hint=(1, 0.1), spacing=10)
 
-        self.greeting_label = Label(text='', font_size='24sp', bold=True, size_hint=(0.9, 1), halign='center')
+        self.greeting_label = Label(text='', font_name='emoji', font_size='24sp', bold=True, size_hint=(0.9, 1), halign='center')
         top_layout.add_widget(self.greeting_label)
 
         # Кнопка выбора цвета фона
-        self.color_btn = Button(text='🎨', size_hint=(0.1, 1), font_size='20sp')
+        self.color_btn = Button(text='🎨', font_name='emoji', size_hint=(0.1, 1), font_size='20sp')
         self.color_btn.bind(on_press=self.open_color_picker)
         top_layout.add_widget(self.color_btn)
 
-        self.stats_label = Label(text='Загрузка статистики...', font_size='16sp', size_hint=(1, 0.15), halign='center')
+        self.stats_label = Label(text='Загрузка статистики...', font_name='emoji', font_size='16sp', size_hint=(1, 0.15), halign='center')
 
         btn_layout = BoxLayout(orientation='vertical', size_hint=(1, 0.6), spacing=10)
 
@@ -145,7 +149,7 @@ class WelcomeScreen(Screen):
         self.manager.current = 'training'
 
     def show_progress(self):
-        content = Label(text='📊 Detailed statistics will appear here.\nTotal sessions: 0\nAccuracy: 0%\nLast activity: -')
+        content = Label(text='📊 Detailed statistics will appear here.\nTotal sessions: 0\nAccuracy: 0%\nLast activity: -', font_name='emoji')
         popup = Popup(title='My Progress', content=content, size_hint=(0.8, 0.4))
         popup.open()
 
@@ -214,13 +218,13 @@ class TrainingScreen(Screen):
         self.total_words = 0
 
         header = BoxLayout(size_hint=(1, 0.12), spacing=10)
-        self.topic_label = Label(text='Тема: -', font_size='14sp', halign='left', size_hint=(0.6, 1))
+        self.topic_label = Label(text='Тема: -', font_name='emoji', font_size='14sp', halign='left', size_hint=(0.6, 1))
         header.add_widget(self.topic_label)
-        self.timer_label = Label(text='⏱ 0.00с', font_size='16sp', color=(0.2, 0.6, 1, 1), halign='right', size_hint=(0.4, 1))
+        self.timer_label = Label(text='⏱ 0.00с', font_name='emoji', font_size='16sp', color=(0.2, 0.6, 1, 1), halign='right', size_hint=(0.4, 1))
         header.add_widget(self.timer_label)
         self.add_widget(header)
 
-        self.word_display = Label(text='', font_size='24sp', bold=True, size_hint=(1, 0.25), halign='center', valign='middle')
+        self.word_display = Label(text='', font_name='emoji', font_size='24sp', bold=True, size_hint=(1, 0.25), halign='center', valign='middle')
         self.add_widget(self.word_display)
 
         self.answer_input = TextInput(hint_text='Введите перевод...', multiline=False, size_hint=(1, 0.12), font_size='18sp')
@@ -232,14 +236,14 @@ class TrainingScreen(Screen):
         self.add_widget(check_btn)
 
         self.example_box = BoxLayout(orientation='vertical', size_hint=(1, 0.15), opacity=0, disabled=True)
-        self.example_label = Label(text='', font_size='14sp', color=(0.3, 0.3, 0.3, 1), halign='center', valign='middle')
+        self.example_label = Label(text='', font_name='emoji', font_size='14sp', color=(0.3, 0.3, 0.3, 1), halign='center', valign='middle')
         self.example_box.add_widget(self.example_label)
         self.add_widget(self.example_box)
 
-        self.result_label = Label(text='', font_size='16sp', size_hint=(1, 0.08), halign='center')
+        self.result_label = Label(text='', font_name='emoji', font_size='16sp', size_hint=(1, 0.08), halign='center')
         self.add_widget(self.result_label)
 
-        self.progress_label = Label(text='Слово 0/0', font_size='13sp', color=(0.5, 0.5, 0.5, 1), size_hint=(1, 0.08))
+        self.progress_label = Label(text='Слово 0/0', font_name='emoji', font_size='13sp', color=(0.5, 0.5, 0.5, 1), size_hint=(1, 0.08))
         self.add_widget(self.progress_label)
 
     def on_enter(self):
