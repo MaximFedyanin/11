@@ -13,7 +13,7 @@ package.domain = org.fedyanin
 source.dir = .
 
 # (list) Source files to include (let empty to include all the files)
-source.include_exts = py,png,jpg,kv,atlas,db,txt,csv,sql
+source.include_exts = py,png,jpg,kv,atlas,db,txt,csv,sql,ttf
 
 # (list) List of inclusions using pattern matching
 source.include_patterns = assets/*,database/*,images/*.png
@@ -187,6 +187,7 @@ android.accept_sdk_license = True
 # 1) android.add_assets = source_asset_relative_path
 # 2) android.add_assets = source_asset_path:destination_asset_relative_path
 android.add_assets = database/words.db:database/words.db
+android.add_assets = assets/fonts:assets/fonts
 
 # (list) Put these files or directories in the apk res directory.
 # The option may be used in three ways, the value may contain one or zero ':'
