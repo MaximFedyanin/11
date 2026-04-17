@@ -13,7 +13,7 @@ package.domain = org.fedyanin
 source.dir = .
 
 # (list) Source files to include (let empty to include all the files)
-source.include_exts = py,png,jpg,kv,atlas,db,txt,csv,sql,ttf
+source.include_exts = py,png,jpg,kv,atlas,db,txt,csv,sql
 
 # (list) List of inclusions using pattern matching
 source.include_patterns = assets/*,database/*,images/*.png
@@ -186,7 +186,7 @@ android.accept_sdk_license = True
 # Either form may be used, and assets need not be in 'source.include_exts'.
 # 1) android.add_assets = source_asset_relative_path
 # 2) android.add_assets = source_asset_path:destination_asset_relative_path
-android.add_assets = database/words.db:database/words.db,assets/fonts:assets/fonts
+android.add_assets = database/words.db:database/words.db
 
 # (list) Put these files or directories in the apk res directory.
 # The option may be used in three ways, the value may contain one or zero ':'
@@ -198,7 +198,7 @@ android.add_assets = database/words.db:database/words.db,assets/fonts:assets/fon
 # 3) A directory, here 'legal_resources' must contain one or more directories, 
 # each of a resource kind:  drawable, xml, etc...
 # android.add_resources = legal_resources
-android.add_resources = assets/fonts
+#android.add_resources =
 
 # (list) Gradle dependencies to add
 #android.gradle_dependencies =
