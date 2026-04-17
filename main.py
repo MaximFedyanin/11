@@ -4,10 +4,12 @@
 import os
 import sqlite3
 import shutil
+import json
 from datetime import datetime
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
@@ -20,6 +22,31 @@ Config.set('graphics', 'multisamples', '0')
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 Window.clearcolor = (0.95, 0.95, 0.95, 1)
 
+# Цвета фона для выбора
+BG_COLORS = {
+    'white': (0.95, 0.95, 0.95, 1),
+    'light_green': (0.8, 0.95, 0.8, 1),
+    'light_pink': (0.95, 0.8, 0.85, 1),
+    'light_blue': (0.8, 0.9, 0.95, 1),
+    'light_yellow': (0.95, 0.95, 0.7, 1),
+}
+
+COLOR_NAMES = ['white', 'light_green', 'light_pink', 'light_blue', 'light_yellow']
+
+# ============================================================================
+# МЕНЕДЖЕР ЭКРАНОВ С ПОДДЕРЖКОЙ ЦВЕТА ФОНА
+# ============================================================================
+class ScreenManagerWithBg(ScreenManager):
+    """ScreenManager с возможностью установки общего цвета фона"""
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.current_bg_color = (0.95, 0.95, 0.95, 1)  # белый по умолчанию
+
+    def set_background(self, color):
+        """Установить цвет фона для всех экранов"""
+        self.current_bg_color = color
+        Window.clearcolor = color
+
 # ============================================================================
 # ЭКРАН ПРИВЕТСТВИЯ
 # ============================================================================
@@ -27,36 +54,71 @@ class WelcomeScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.layout = BoxLayout(orientation='vertical', padding=20, spacing=15)
-        
-        self.greeting_label = Label(text='', font_size='24sp', bold=True, size_hint=(1, 0.2), halign='center')
+
+        # Верхняя панель с кнопкой выбора цвета
+        top_layout = BoxLayout(orientation='horizontal', size_hint=(1, 0.1), spacing=10)
+
+        self.greeting_label = Label(text='', font_size='24sp', bold=True, size_hint=(0.9, 1), halign='center')
+        top_layout.add_widget(self.greeting_label)
+
+        # Кнопка выбора цвета фона
+        self.color_btn = Button(text='🎨', size_hint=(0.1, 1), font_size='20sp')
+        self.color_btn.bind(on_press=self.open_color_picker)
+        top_layout.add_widget(self.color_btn)
+
         self.stats_label = Label(text='Загрузка статистики...', font_size='16sp', size_hint=(1, 0.15), halign='center')
-        
+
         btn_layout = BoxLayout(orientation='vertical', size_hint=(1, 0.6), spacing=10)
-        
+
         self.new_words_btn = Button(text='[b]New Words[/b]\nновые слова', markup=True, font_size='16sp',
                                     background_color=(0.3, 0.8, 0.3, 1), color=(1,1,1,1))
         self.new_words_btn.bind(on_press=lambda x: self.manager.current('topic_select'))
-        
+
         self.repetition_btn = Button(text='[b]Repetition[/b]\nповторение', markup=True, font_size='16sp',
                                      background_color=(0.8, 0.6, 0.2, 1), color=(1,1,1,1))
         self.repetition_btn.bind(on_press=self.start_repetition)
-        
+
         self.progress_btn = Button(text='[b]My Progress[/b]\nмой прогресс', markup=True, font_size='16sp',
                                    background_color=(0.5, 0.5, 0.8, 1), color=(1,1,1,1))
         self.progress_btn.bind(on_press=self.show_progress)
-        
+
         btn_layout.add_widget(self.new_words_btn)
         btn_layout.add_widget(self.repetition_btn)
         btn_layout.add_widget(self.progress_btn)
-        
-        self.layout.add_widget(self.greeting_label)
+
+        self.layout.add_widget(top_layout)
         self.layout.add_widget(self.stats_label)
         self.layout.add_widget(btn_layout)
         self.add_widget(self.layout)
 
+    def open_color_picker(self, instance):
+        """Открыть popup с выбором цвета фона"""
+        content = GridLayout(cols=4, spacing=5, size_hint=(1, 1), padding=10)
+
+        for color_name in COLOR_NAMES:
+            color = BG_COLORS[color_name]
+            btn = Button(background_color=color[:3], background_normal='')
+            btn.bind(on_press=lambda x, c=color_name: self.set_background_color(c))
+            content.add_widget(btn)
+
+        popup = Popup(title='Выберите цвет фона', content=content, size_hint=(0.6, 0.4), auto_dismiss=True)
+        popup.open()
+
+    def set_background_color(self, color_name):
+        """Установить цвет фона и сохранить в конфиг"""
+        color = BG_COLORS.get(color_name, BG_COLORS['white'])
+        App.get_running_app().set_bg_color(color_name, color)
+        self.parent.set_background(color)
+
     def on_enter(self):
         self.update_greeting()
         self.update_stats()
+        # Применить сохранённый цвет фона
+        app = App.get_running_app()
+        saved_color_name = app.get_saved_bg_color()
+        if saved_color_name:
+            color = BG_COLORS.get(saved_color_name, BG_COLORS['white'])
+            self.parent.set_background(color)
 
     def update_greeting(self):
         hour = datetime.now().hour
@@ -95,11 +157,11 @@ class TopicSelectScreen(Screen):
         super().__init__(**kwargs)
         layout = BoxLayout(orientation='vertical', padding=20, spacing=15)
         layout.add_widget(Label(text='Enter topic keywords:', font_size='18sp', size_hint=(1, 0.1)))
-        
-        self.topic_input = TextInput(hint_text='e.g., food, travel, business', multiline=False, 
+
+        self.topic_input = TextInput(hint_text='e.g., food, travel, business', multiline=False,
                                      size_hint=(1, 0.15), font_size='16sp')
         layout.add_widget(self.topic_input)
-        
+
         level_layout = BoxLayout(size_hint=(1, 0.1), spacing=5)
         self.selected_level = 'A1'
         self.level_buttons = {}
@@ -110,12 +172,12 @@ class TopicSelectScreen(Screen):
             level_layout.add_widget(btn)
             self.level_buttons[lvl] = btn
         layout.add_widget(level_layout)
-        
-        start_btn = Button(text='Start Session', size_hint=(1, 0.15), background_color=(0.3, 0.8, 0.3, 1), 
+
+        start_btn = Button(text='Start Session', size_hint=(1, 0.15), background_color=(0.3, 0.8, 0.3, 1),
                            font_size='18sp', color=(1,1,1,1))
         start_btn.bind(on_press=self.start_session)
         layout.add_widget(start_btn)
-        
+
         back_btn = Button(text='Back', size_hint=(1, 0.1), background_color=(0.6, 0.6, 0.6, 1))
         back_btn.bind(on_press=lambda x: self.manager.current('welcome'))
         layout.add_widget(back_btn)
@@ -143,40 +205,40 @@ class TrainingScreen(Screen):
         self.orientation = 'vertical'
         self.padding = 10
         self.spacing = 8
-        
+
         self.current_word = None
         self.timer_event = None
         self.elapsed_time = 0
         self.words_queue = []
         self.answered_count = 0
         self.total_words = 0
-        
+
         header = BoxLayout(size_hint=(1, 0.12), spacing=10)
         self.topic_label = Label(text='Тема: -', font_size='14sp', halign='left', size_hint=(0.6, 1))
         header.add_widget(self.topic_label)
         self.timer_label = Label(text='⏱ 0.00с', font_size='16sp', color=(0.2, 0.6, 1, 1), halign='right', size_hint=(0.4, 1))
         header.add_widget(self.timer_label)
         self.add_widget(header)
-        
+
         self.word_display = Label(text='', font_size='24sp', bold=True, size_hint=(1, 0.25), halign='center', valign='middle')
         self.add_widget(self.word_display)
-        
+
         self.answer_input = TextInput(hint_text='Введите перевод...', multiline=False, size_hint=(1, 0.12), font_size='18sp')
         self.answer_input.bind(on_text_validate=lambda x: self.check_answer(None))
         self.add_widget(self.answer_input)
-        
+
         check_btn = Button(text='Проверить', size_hint=(1, 0.1), background_color=(0.2, 0.6, 1, 1), color=(1,1,1,1))
         check_btn.bind(on_press=self.check_answer)
         self.add_widget(check_btn)
-        
+
         self.example_box = BoxLayout(orientation='vertical', size_hint=(1, 0.15), opacity=0, disabled=True)
         self.example_label = Label(text='', font_size='14sp', color=(0.3, 0.3, 0.3, 1), halign='center', valign='middle')
         self.example_box.add_widget(self.example_label)
         self.add_widget(self.example_box)
-        
+
         self.result_label = Label(text='', font_size='16sp', size_hint=(1, 0.08), halign='center')
         self.add_widget(self.result_label)
-        
+
         self.progress_label = Label(text='Слово 0/0', font_size='13sp', color=(0.5, 0.5, 0.5, 1), size_hint=(1, 0.08))
         self.add_widget(self.progress_label)
 
@@ -186,7 +248,7 @@ class TrainingScreen(Screen):
         mode = getattr(self.manager, 'mode', 'new_words')
         level = getattr(self.manager, 'level', 'A1')
         keywords = getattr(self.manager, 'keywords', ['general'])
-        
+
         self.topic_label.text = f'📚 {", ".join(keywords)} | {level} | {mode}'
         self.load_words(keywords, level, mode)
 
@@ -199,12 +261,12 @@ class TrainingScreen(Screen):
         from smart_search import SimpleWordSearch
         search = SimpleWordSearch(self.db_path)
         search.set_username("local_user")
-        
+
         if mode == 'new_words':
             self.words_queue = search.find_unanswered_words(keywords=keywords, level=level, limit=20)
         else:
             self.words_queue = search.find_words_for_repetition(username="local_user", level=level, limit=20)
-            
+
         self.total_words = len(self.words_queue)
         if not self.words_queue:
             self.word_display.text = '[b]Нет слов для этой темы/уровня[/b]'
@@ -217,7 +279,7 @@ class TrainingScreen(Screen):
             self.word_display.text = '[b]🎉 Сессия завершена![/b]'
             self.result_label.text = f'Пройдено слов: {self.answered_count}'
             return
-            
+
         self.current_word = self.words_queue.pop(0)
         # word = (id, word_en, translation, level, topic, frequency, examples_json)
         self.word_display.text = f'[b]{self.current_word[1]}[/b]'
@@ -227,7 +289,7 @@ class TrainingScreen(Screen):
         self.example_box.disabled = True
         self.example_label.text = ''
         self.result_label.text = ''
-        
+
         if self.timer_event: self.timer_event.cancel()
         self.timer_event = Clock.schedule_interval(self.update_timer, 0.01)
         self.progress_label.text = f'Слово {self.answered_count + 1}/{self.total_words}'
@@ -242,23 +304,23 @@ class TrainingScreen(Screen):
     def check_answer(self, instance):
         if not self.current_word or self.result_label.text: return
         if self.timer_event: self.timer_event.cancel()
-        
+
         user_answer = self.answer_input.text.strip().lower()
         correct_answers = [self.current_word[2].lower()]
         is_correct = user_answer in correct_answers
-        
+
         response_time = (datetime.now() - self.session_start).total_seconds()
         self.save_result(is_correct, response_time)
-        
+
         if is_correct:
             self.result_label.text = '✅ Правильно!'
             self.result_label.color = (0, 0.7, 0, 1)
         else:
             self.result_label.text = f'❌ Правильно: {self.current_word[2]}'
             self.result_label.color = (0.9, 0.2, 0.2, 1)
-            
+
         self.answered_count += 1
-        
+
         if self.current_word[6]:
             import json
             try:
@@ -268,7 +330,7 @@ class TrainingScreen(Screen):
                     self.example_box.opacity = 1
                     self.example_box.disabled = False
             except: pass
-            
+
         Clock.schedule_once(lambda dt: self.show_next_word(), 1.5)
 
     def handle_timeout(self):
@@ -303,7 +365,7 @@ class EnglishLearningApp(App):
     def build(self):
         self.db_path = self.get_db_path()
         print(f"[DEBUG] Путь к БД: {self.db_path}")
-        
+
         # Проверка наличия слов в базе
         try:
             conn = sqlite3.connect(self.db_path)
@@ -314,13 +376,48 @@ class EnglishLearningApp(App):
             conn.close()
         except Exception as e:
             print(f"[ERROR] Не удалось прочитать базу: {e}")
-            
+
+        # Загрузка сохранённого цвета фона
+        self.saved_bg_color_name = self.get_saved_bg_color()
+        if not self.saved_bg_color_name:
+            self.saved_bg_color_name = 'white'
+
         self.title = 'English Learning'
-        sm = ScreenManager(transition=FadeTransition(duration=0.3))
+        sm = ScreenManagerWithBg(transition=FadeTransition(duration=0.3))
         sm.add_widget(WelcomeScreen(name='welcome'))
         sm.add_widget(TopicSelectScreen(name='topic_select'))
         sm.add_widget(TrainingScreen(name='training'))
+        # Применить начальный цвет фона
+        sm.set_background(BG_COLORS[self.saved_bg_color_name])
         return sm
+
+    def set_bg_color(self, color_name, color):
+        """Сохранить выбранный цвет фона и применить его"""
+        self.saved_bg_color_name = color_name
+        self.save_config()
+
+    def get_saved_bg_color(self):
+        """Получить сохранённый цвет фона из конфига"""
+        config_file = os.path.join(self.user_data_dir, 'config.json')
+        if os.path.exists(config_file):
+            try:
+                with open(config_file, 'r') as f:
+                    config = json.load(f)
+                    return config.get('bg_color', 'white')
+            except:
+                pass
+        return 'white'
+
+    def save_config(self):
+        """Сохранить конфигурацию приложения"""
+        config_file = os.path.join(self.user_data_dir, 'config.json')
+        try:
+            os.makedirs(self.user_data_dir, exist_ok=True)
+            config = {'bg_color': self.saved_bg_color_name}
+            with open(config_file, 'w') as f:
+                json.dump(config, f)
+        except Exception as e:
+            print(f"Ошибка сохранения конфига: {e}")
 
     def get_db_path(self):
         user_dir = self.user_data_dir
