@@ -17,10 +17,29 @@ from kivy.uix.popup import Popup
 from kivy.clock import Clock
 from kivy.config import Config
 from kivy.core.window import Window
+from kivy.core.text import LabelBase
+
+# Регистрация шрифта с поддержкой эмодзи
+try:
+    assets_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets', 'fonts')
+    emoji_font_path = os.path.join(assets_dir, 'NotoColorEmoji.ttf')
+    if os.path.exists(emoji_font_path):
+        LabelBase.register(name='EmojiFont', fn_normal=emoji_font_path)
+        print(f"[INFO] Emoji font registered: {emoji_font_path}")
+    else:
+        print(f"[WARNING] Emoji font not found at {emoji_font_path}")
+except Exception as e:
+    print(f"[ERROR] Failed to register emoji font: {e}")
 
 Config.set('graphics', 'multisamples', '0')
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 Window.clearcolor = (0.95, 0.95, 0.95, 1)
+
+# Установить шрифт с поддержкой эмодзи по умолчанию для всех Label и Button
+from kivy.uix.label import Label as KivyLabel
+from kivy.uix.button import Button as KivyButton
+KivyLabel.font_name = 'EmojiFont'
+KivyButton.font_name = 'EmojiFont'
 
 # Цвета фона для выбора
 BG_COLORS = {
