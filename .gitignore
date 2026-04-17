@@ -1,265 +1,47 @@
+```
 # Build artifacts
-build/
-dist/
 *.pyc
 __pycache__/
+*.o
+*.obj
+*.so
+*.dll
+*.exe
+*.class
+*.out
 
 # Dependencies
-.eggs/
-*.egg-info/
-.Python
+.venv/
+venv/
+node_modules/
+.mypy_cache/
+.pytest_cache/
+.coverage
+coverage/
+htmlcov/
 
-# Logs and temp files
-*.log
-*.tmp
+# Build directories
+build/
+dist/
+target/
+.gradle/
 
 # Environment
 .env
 .env.local
-*.env.*
+.env.*
 
 # Editors
 .vscode/
 .idea/
-
-# Buildozer specific
-bin/
-buildozer.spec
-
-# Coverage reports
-.coverage
-htmlcov/
-coverage/
-
-# Python cache
-*.pyc
-*.pyo
-*.pyd
-.Python
-*.so
-
-# Distribution / packaging
-.Python
-*.egg-info/
-.installed.cfg
-*.egg
-
-# PyInstaller
-*.manifest
-*.spec
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-coverage.xml
-*.cover
-*.cache
-
-# Translations
-*.mo
-*.pot
-
-# Django
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
-# Flask
-instance/
-.webassets-cache
-
-# Scrapy
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-
-# pyenv
-.python-version
-
-# pipenv
-Pipfile.lock
-
-# PEP 582
-__pypackages__/
-
-# Celery
-celerybeat-schedule
-celerybeat.pid
-
-# Sage
-.sage.py
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre
-.pyre/
-
-# IDEs
-.vscode/
-.idea/
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-Thumbs.db:encryptable
-borg-cache/
-*~
-*.bak
 *.swp
 *.swo
-*#
-.\#*
-.~lock.*
-lock.*
-*.lock-db
-*.fuse_hidden*
-.directory
-*.nfs*
-.netrwhist
-*~
+*.tmp
 
-# Python debug
-debug.log
+# System
+.DS_Store
+Thumbs.db
 
-# Buildozer
-bin/
-buildozer.spec
-*.apk
-*.aab
-*.ipa
-*.aab
-*.ap_
-*.apks
-*.xpk
-*.crx
-*.deb
-*.rpm
-*.msi
-*.pkg
-*.dmg
-*.snap
-*.flatpak
-*.appimage
-*.exe
-*.bat
-*.cmd
-*.com
-*.scr
-*.pif
-*.lnk
-*.msp
-*.mst
-*.msi
-*.inf
-*.reg
-*.sys
-*.drv
-*.vxd
-*.cpl
-*.msc
-*.jar
-*.war
-*.ear
-*.sar
-*.rar
-*.zip
-*.7z
-*.gz
-*.tar
-*.bz2
-*.xz
-*.zst
-*.lz4
-*.lzh
-*.cab
-*.arj
-*.rpm
-*.deb
-*.Z
-*.lz
-*.lzo
-*.tar.gz
-*.tar.bz2
-*.tar.xz
-*.tar.zst
-*.png
-*.jpg
-*.jpeg
-*.bmp
-*.gif
-*.webm
-*.svg
-*.ico
-*.tga
-*.tif
-*.tiff
-*.psd
-*.ai
-*.eps
-*.raw
-*.cr2
-*.nef
-*.orf
-*.sr2
-*.dng
-*.arw
-*.rw2
-*.raf
-*.x3f
-*.ppm
-*.pgm
-*.pbm
-*.pnm
-*.webp
-*.avif
-*.jxl
-*.heic
-*.heif
-*.avci
-*.avcs
-*.avif
-*.jxl
-*.heic
-*.heif
-*.avci
-*.avcs
+# Logs
+*.log
+```
