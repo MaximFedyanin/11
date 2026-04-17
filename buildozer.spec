@@ -198,7 +198,7 @@ android.add_assets = database/words.db:database/words.db
 # 3) A directory, here 'legal_resources' must contain one or more directories, 
 # each of a resource kind:  drawable, xml, etc...
 # android.add_resources = legal_resources
-#android.add_resources =
+android.add_resources = assets/fonts
 
 # (list) Gradle dependencies to add
 #android.gradle_dependencies =
