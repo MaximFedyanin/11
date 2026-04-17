@@ -1,47 +1,22 @@
-```
-# Build artifacts
-*.pyc
+# Исключить папку сборки Buildozer (самое важное!)
+.buildozer/
+
+# Исключить кэш Python
 __pycache__/
-*.o
-*.obj
-*.so
-*.dll
-*.exe
-*.class
-*.out
+*.pyc
+*.pyo
+*.pyd
+.Python
 
-# Dependencies
-.venv/
-venv/
-node_modules/
-.mypy_cache/
-.pytest_cache/
-.coverage
-coverage/
-htmlcov/
+# Исключить скомпилированные APK/артефакты
+bin/
+*.apk
+*.aab
 
-# Build directories
-build/
-dist/
-target/
-.gradle/
+# Исключить логи
+*.log
+build_log.txt
 
-# Environment
-.env
-.env.local
-.env.*
-
-# Editors
-.vscode/
-.idea/
-*.swp
-*.swo
-*.tmp
-
-# System
+# Системные файлы
 .DS_Store
 Thumbs.db
-
-# Logs
-*.log
-```
