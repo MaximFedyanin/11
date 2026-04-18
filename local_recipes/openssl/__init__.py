@@ -13,6 +13,15 @@ class OpensslRecipe(Recipe):
         build_dir = self.get_build_dir(arch.arch)
         return ['-I{}'.format(os.path.join(build_dir, 'include'))]
 
+    def link_dirs_flags(self, arch):
+        """Return library directory flags for the openssl recipe."""
+        build_dir = self.get_build_dir(arch.arch)
+        return ['-L{}'.format(os.path.join(build_dir, 'lib'))]
+
+    def link_libs_flags(self):
+        """Return library linking flags for the openssl recipe."""
+        return ['-lssl', '-lcrypto']
+
     def get_recipe_env(self, arch):
         env = super().get_recipe_env(arch)
         return env
