@@ -7,7 +7,12 @@ class OpensslRecipe(Recipe):
     version = '1.1.1w'
     url = 'https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-1.1.1w.tar.gz'
     sha256 = 'cf3098950cb4d853ad95c0841f1f9c6d3dc102dccfcacd521d93925208b76ac8'
-    
+
+    def include_flags(self, arch):
+        """Return include flags for the openssl recipe."""
+        build_dir = self.get_build_dir(arch.arch)
+        return ['-I{}'.format(os.path.join(build_dir, 'include'))]
+
     def get_recipe_env(self, arch):
         env = super().get_recipe_env(arch)
         return env
