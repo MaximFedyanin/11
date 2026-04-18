@@ -20,7 +20,7 @@ class OpensslRecipe(Recipe):
 
     def link_libs_flags(self):
         """Return library linking flags for the openssl recipe."""
-        return ['-lssl', '-lcrypto']
+        return '-lssl -lcrypto'
 
     def get_recipe_env(self, arch):
         env = super().get_recipe_env(arch)
