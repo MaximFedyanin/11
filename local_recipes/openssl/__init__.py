@@ -19,3 +19,5 @@ class OpensslRecipe(Recipe):
             print(f'Openssl already extracted in {build_dir}, skipping')
             return
         super().prebuild_arch(arch)
+
+recipe = OpensslRecipe()
