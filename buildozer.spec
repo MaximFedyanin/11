@@ -37,7 +37,11 @@ version = 0.1.0
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,kivy,rapidfuzz,sqlite3
+# python3 resolves to Python 3.11 in current python-for-android toolchain
+requirements = python3,kivy==2.3.0,rapidfuzz,sqlite3
+
+# (str) Python version to use (explicit specification for Android builds)
+python.version = 3.11
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
@@ -95,7 +99,8 @@ fullscreen = 0
 
 # (list) Permissions
 # (See https://python-for-android.readthedocs.io/en/latest/buildoptions/#build-options-1 for all the supported syntaxes and properties)
-android.permissions = WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE,INTERNET 
+# Android 13+ requires granular permissions; READ/WRITE_EXTERNAL_STORAGE handled via scoped storage
+android.permissions = INTERNET,READ_EXTERNAL_STORAGE,WRITE_EXTERNAL_STORAGE,MANAGE_EXTERNAL_STORAGE
 
 # (list) features (adds uses-feature -tags to manifest)
 #android.features = android.hardware.usb.host
@@ -211,7 +216,8 @@ android.enable_androidx = True
 # (list) add java compile options
 # this can for example be necessary when importing certain java libraries using the 'android.gradle_dependencies' option
 # see https://developer.android.com/studio/write/java8-support for further information
-# android.add_compile_options = "sourceCompatibility = 1.8", "targetCompatibility = 1.8"
+# Required for Android 13+ compatibility and proper .so library loading
+android.add_compile_options = "sourceCompatibility = 1.8", "targetCompatibility = 1.8"
 
 # (list) Gradle repositories to add {can be necessary for some android.gradle_dependencies}
 # please enclose in double quotes 
@@ -270,7 +276,8 @@ android.enable_androidx = True
 #android.uses_library =
 
 # (str) Android logcat filters to use
-#android.logcat_filters = *:S python:D
+# Enable detailed logging for debugging Android 13+ issues
+android.logcat_filters = *:S python:D pythonforandroid:D
 
 # (bool) Android logcat only display log for activity's pid
 #android.logcat_pid_only = False
@@ -279,7 +286,8 @@ android.enable_androidx = True
 #android.adb_args = -H host.docker.internal
 
 # (bool) Copy library instead of making a libpymodules.so
-#android.copy_libs = 1
+# Helps with SELinux permission issues on Android 13+
+android.copy_libs = 1
 
 # (list) The Android archs to build for, choices: armeabi-v7a, arm64-v8a, x86, x86_64
 # In past, was `android.arch` as we weren't supporting builds for multiple archs at the same time.
@@ -294,6 +302,10 @@ android.allow_backup = True
 
 # (str) XML file for custom backup rules (see official auto backup documentation)
 # android.backup_rules =
+
+# (bool) Request legacy external storage for Android 10-12 compatibility
+# Required for proper file access on devices transitioning to scoped storage
+android.request_legacy_external_storage = True
 
 # (str) If you need to insert variables into your AndroidManifest.xml file,
 # you can do so with the manifestPlaceholders property.
@@ -330,13 +342,15 @@ android.allow_backup = True
 #p4a.source_dir =
 
 # (str) The directory in which python-for-android should look for your own build recipes (if any)
-#p4a.local_recipes =
+# Local recipes for custom builds and Android 13+ compatibility fixes
+p4a.local_recipes = local_recipes
 
 # (str) Filename to the hook for p4a
 #p4a.hook =
 
 # (str) Bootstrap to use for android builds
-# p4a.bootstrap = sdl2
+# Using sdl2 bootstrap for Kivy applications with proper Android 13 support
+p4a.bootstrap = sdl2
 
 # (int) port number to specify an explicit --port= p4a argument (eg for bootstrap flask)
 #p4a.port =
@@ -349,7 +363,8 @@ android.allow_backup = True
 #p4a.setup_py = false
 
 # (str) extra command line arguments to pass when invoking pythonforandroid.toolchain
-#p4a.extra_args =
+# Additional arguments for Android 13+ compatibility and proper library loading
+p4a.extra_args = --allow-min-api-21 --ndk-api=21
 
 
 
