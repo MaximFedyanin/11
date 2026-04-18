@@ -5,8 +5,8 @@ import os
 
 class OpensslRecipe(Recipe):
     version = '1.1.1w'
-    url = '/home/maxim/.buildozer/android/platform/build-arm64-v8a/packages/openssl/openssl-1.1.1w.tar.gz'
-    sha256 = 'a0c3fe60c5c010f85155088a4e896f4d3f6e3f8e8e8e8e8e8e8e8e8e8e8e8e8e'  # заглушка
+    url = 'https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-1.1.1w.tar.gz'
+    sha256 = 'cf3098950cb4d853ad95c0841f1f9c6d3dc102dccfcacd521d93925208b76ac8'
     
     def get_recipe_env(self, arch):
         env = super().get_recipe_env(arch)
