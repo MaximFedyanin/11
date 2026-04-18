@@ -1,76 +1,32 @@
-# Environment
-.env
-.env.local
-*.env.*
-
-# Dependencies
-.buildozer/
+```
+# Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 .Python
-venv/
 env/
-ENV/
+venv/
 .venv/
-env.bak/
-venv.bak/
-
-# Build artifacts
-build/
-dist/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Logs
-*.log
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# Coverage reports
-coverage/
-htmlcov/
-.coverage
-*.cover
-
-# Distribution / packaging
+.ENV
+.ENV.*
+.venv/
+venv/
 pip-log.txt
 pip-delete-this-directory.txt
 .tox/
-.coverage*
-
-# Testing
-.noseids
-*.noseids
+.coverage
+.coverage.*
+.cache
 nosetests.xml
+coverage.xml
+*.cover
+*.log
 .pytest_cache/
+.mypy_cache/
+.hypothesis/
 
-# Buildozer specific
-bin/
-buildozer-*.spec
-
-# Python
-*.py[cod]
-*$py.class
-*$py.o
-*$py.d
-*.so
+# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -88,17 +44,25 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
-.pytest_cache/
-.hypothesis/
-.coverage*
-.coverage
-htmlcov/
-.tox/
-.nox/
-.cover/
-.mypy_cache/
-.dmypy.json
-dmypy.json
-.pyre/
-.pytype/
-cython_debug/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment variables
+.env
+.env.local
+.env.*
+!.env.example
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+```
