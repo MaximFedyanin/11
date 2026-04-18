@@ -20,14 +20,27 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-pip python3-setuptools git cmake zip unzip openjdk-17-jdk autoconf automake libtool pkg-config m4
+          sudo apt-get install -y python3-pip python3-setuptools git cmake zip unzip openjdk-17-jdk autoconf automake libtool pkg-config m4 clang llvm
           pip3 install --user buildozer cython==0.29.33
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Fix libtool macros (libffi)
+      - name: Fix libtool macros (libffi) and configure NDK
         run: |
           sudo cp /usr/share/libtool/build-aux/m4/*.m4 /usr/share/aclocal/ 2>/dev/null || true
           sudo cp /usr/share/libtool/m4/*.m4 /usr/share/aclocal/ 2>/dev/null || true
+
+          # Set up NDK environment variables for the entire workflow
+          export ANDROID_NDK_HOME=$HOME/.buildozer/android/platform/android-ndk-r25b
+          export NDK_HOME=$ANDROID_NDK_HOME
+          export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
+
+          # Verify clang is accessible from NDK
+          which clang || echo "Warning: clang not found in PATH yet"
+
+          # Export for subsequent steps
+          echo "ANDROID_NDK_HOME=$ANDROID_NDK_HOME" >> $GITHUB_ENV
+          echo "NDK_HOME=$NDK_HOME" >> $GITHUB_ENV
+          echo "PATH=$PATH" >> $GITHUB_ENV
 
       - name: Configure Java & Gradle for CI
         run: |
@@ -39,7 +52,7 @@ jobs:
           # 2. Отключаем Gradle Daemon и увеличиваем память
           export GRADLE_OPTS="-Xmx4g -XX:MaxMetaspaceSize=2g -Dorg.gradle.daemon=false"
           export GRADLE_USER_HOME=$HOME/.gradle
-          
+
           # 3. Создаём gradle.properties с гарантированными настройками
           mkdir -p ~/.gradle
           cat > ~/.gradle/gradle.properties << EOF
@@ -55,9 +68,12 @@ jobs:
           P4A_JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
           GRADLE_OPTS: "-Xmx4g -XX:MaxMetaspaceSize=2g -Dorg.gradle.daemon=false"
         run: |
+          # Verify NDK compiler is available
+          which aarch64-linux-android21-clang || echo "Warning: Target compiler not in PATH"
+
           # Очищаем кэш Gradle внутри dist, чтобы исключить конфликты состояний
           rm -rf ~/.buildozer/android/platform/build-arm64-v8a/dists/englishlearning/.gradle 2>/dev/null || true
-          
+
           # Запускаем сборку
           buildozer android debug
 
