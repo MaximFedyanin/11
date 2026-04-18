@@ -1,22 +1,104 @@
-# Исключить папку сборки Buildozer (самое важное!)
-.buildozer/
+# Environment
+.env
+.env.local
+*.env.*
 
-# Исключить кэш Python
+# Dependencies
+.buildozer/
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 .Python
+venv/
+env/
+ENV/
+.venv/
+env.bak/
+venv.bak/
 
-# Исключить скомпилированные APK/артефакты
-bin/
-*.apk
-*.aab
+# Build artifacts
+build/
+dist/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Исключить логи
+# Logs
 *.log
-build_log.txt
 
-# Системные файлы
+# OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Coverage reports
+coverage/
+htmlcov/
+.coverage
+*.cover
+
+# Distribution / packaging
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage*
+
+# Testing
+.noseids
+*.noseids
+nosetests.xml
+.pytest_cache/
+
+# Buildozer specific
+bin/
+buildozer-*.spec
+
+# Python
+*.py[cod]
+*$py.class
+*$py.o
+*$py.d
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.pytest_cache/
+.hypothesis/
+.coverage*
+.coverage
+htmlcov/
+.tox/
+.nox/
+.cover/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+cython_debug/
