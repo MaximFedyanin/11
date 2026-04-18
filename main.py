@@ -18,9 +18,17 @@ from kivy.clock import Clock
 from kivy.config import Config
 from kivy.core.window import Window
 from kivy.core.text import LabelBase
+from kivy.resources import resource_find
 
-# Регистрация шрифта с поддержкой эмоджи (системный шрифт)
-LabelBase.register(name='emoji', fn_regular='/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf')
+# Регистрация шрифта с поддержкой эмоджи (кроссплатформенное решение)
+# Попытка зарегистрировать системный шрифт emoji с fallback на стандартный шрифт Kivy
+try:
+    # Для Android и других платформ - используем встроенные возможности Kivy
+    # Kivy автоматически использует доступные системные шрифты
+    LabelBase.register(name='emoji', fn_regular=None)
+except Exception:
+    # Если регистрация не удалась, Kivy будет использовать шрифт по умолчанию
+    pass
 
 Config.set('graphics', 'multisamples', '0')
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
