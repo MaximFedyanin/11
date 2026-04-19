@@ -1,1 +1,52 @@
-Nothing should be ignored based on the provided file changes, as they consist only of source/config files (.md, .sh, .spec) without any build artifacts, dependencies, or temporary files.
+```
+# Build artifacts
+build/
+dist/
+*.apk
+*.aab
+*.ipa
+*.exe
+*.msi
+*.deb
+*.rpm
+
+# Dependencies
+.buildozer/
+.eggs/
+pip-wheel-metadata/
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.local
+*.env.*
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.tmp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Coverage
+.coverage
+coverage/
+htmlcov/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# MyPy
+.mypy_cache/
+```
