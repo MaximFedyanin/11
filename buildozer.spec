@@ -295,7 +295,7 @@ android.add_packaging_options = "exclude 'META-INF/common.kotlin_module'", "excl
 
 # (str) Android NDK toolchain version (auto-detected if not specified)
 # For NDK r25b, the default toolchain is clang
-# android.ndk_toolchain_version = clang
+android.ndk_toolchain_version = clang
 
 # (str) Android logcat filters to use
 # Enable detailed logging for debugging Android 13+ issues
@@ -317,7 +317,7 @@ android.copy_libs = 1
 
 # (list) The Android archs to build for, choices: armeabi-v7a, arm64-v8a, x86, x86_64
 # In past, was `android.arch` as we weren't supporting builds for multiple archs at the same time.
-android.archs = arm64-v8a, armeabi-v7a
+android.archs = arm64-v8a
 
 # (int) overrides automatic versionCode computation (used in build.gradle)
 # this is not the same as app version and should only be edited if you know what you're doing
@@ -392,7 +392,7 @@ p4a.setup_py = false
 # (str) extra command line arguments to pass when invoking pythonforandroid.toolchain
 # Additional arguments for Android 13+ compatibility and proper library loading
 # --disable-ndk-deployment: disables NDK deployment checks that can cause compiler detection issues
-p4a.extra_args = --allow-min-api-21 --ndk-api=21 --debug --disable-ndk-deployment
+p4a.extra_args = --allow-min-api-21 --ndk-api=21 --disable-ndk-deployment
 
 
 
