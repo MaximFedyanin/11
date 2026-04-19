@@ -391,8 +391,7 @@ p4a.setup_py = false
 
 # (str) extra command line arguments to pass when invoking pythonforandroid.toolchain
 # Additional arguments for Android 13+ compatibility and proper library loading
-# --disable-ndk-deployment: disables NDK deployment checks that can cause compiler detection issues
-p4a.extra_args = --allow-min-api-21 --ndk-api=21 --disable-ndk-deployment
+p4a.extra_args = --allow-min-api-21
 
 
 
