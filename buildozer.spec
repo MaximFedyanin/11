@@ -18,6 +18,9 @@ source.include_exts = py,png,jpg,kv,atlas,db,txt,csv,sql,ttf
 # (list) List of inclusions using pattern matching
 source.include_patterns = assets/*,database/*,images/*.png
 
+# (list) Source files to exclude - exclude build artifacts and cache directories
+source.exclude_dirs = .buildozer,__pycache__,*.pyc,.git,.github
+
 # (list) Source files to exclude (let empty to not exclude anything)
 #source.exclude_exts = spec
 
@@ -47,6 +50,14 @@ python.version = 3.11
 # Sets custom source for any requirements with recipes
 # requirements.source.kivy = ../../kivy
 
+# (str) Path to your own copy of the Android SDK or NDK (optional, will download if not set)
+# android.sdk_path =
+# android.ndk_path =
+
+# (bool) Use the latest available NDK version (recommended for compatibility)
+# Setting to False uses the specific version from android.ndk
+p4a.build_dir = %(source.dir)s/.buildozer/android/platform
+
 # (str) Presplash of the application
 #presplash.filename = %(source.dir)s/data/presplash.png
 
@@ -59,6 +70,9 @@ orientation = portrait
 
 # (list) List of service to declare
 #services = NAME:ENTRYPOINT_TO_PY,NAME2:ENTRYPOINT2_TO_PY
+
+# (bool) Enable isolated storage for Android 11+ (recommended for Play Store compliance)
+# android.enable_isolated_storage = True
 
 #
 # OSX Specific
@@ -181,6 +195,9 @@ android.entrypoint = org.kivy.android.PythonActivity
 # OUYA-ODK/libs/*.jar
 #android.add_jars = foo.jar,bar.jar,path/to/more/*.jar
 
+# (str) Android NDK directory (if empty, it will be automatically downloaded.)
+# android.ndk_path =
+
 # (list) List of Java files to add to the android project (can be java or a
 # directory containing the files)
 #android.add_src =
@@ -276,9 +293,17 @@ android.add_packaging_options = "exclude 'META-INF/common.kotlin_module'", "excl
 # (list) Android shared libraries which will be added to AndroidManifest.xml using <uses-library> tag
 #android.uses_library =
 
+# (str) Android NDK toolchain version (auto-detected if not specified)
+# For NDK r25b, the default toolchain is clang
+# android.ndk_toolchain_version = clang
+
 # (str) Android logcat filters to use
 # Enable detailed logging for debugging Android 13+ issues
 android.logcat_filters = *:S python:D pythonforandroid:D
+
+# (bool) Automatically fix common build issues during compilation
+# This helps with compiler detection and environment setup
+p4a.autofix = True
 
 # (bool) Android logcat only display log for activity's pid
 #android.logcat_pid_only = False
@@ -366,7 +391,8 @@ p4a.setup_py = false
 
 # (str) extra command line arguments to pass when invoking pythonforandroid.toolchain
 # Additional arguments for Android 13+ compatibility and proper library loading
-p4a.extra_args = --allow-min-api-21 --ndk-api=21 --debug
+# --disable-ndk-deployment: disables NDK deployment checks that can cause compiler detection issues
+p4a.extra_args = --allow-min-api-21 --ndk-api=21 --debug --disable-ndk-deployment
 
 
 
