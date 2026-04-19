@@ -113,10 +113,14 @@ Created new recipe that:
 - [x] Enabled legacy external storage
 - [x] Created Android 13 compatibility recipe
 - [x] Verified main.py syntax validity
+- [x] Fixed C compiler detection issue for NDK r25b
+- [x] Added build_fix.sh script for automated compilation
 - [ ] Tested on Xiaomi HyperOS (requires physical device)
 - [ ] Tested on stock Android 13 (requires physical device)
 
 ## Build Instructions
+
+### Standard Build
 
 To build the fixed APK:
 
@@ -129,6 +133,27 @@ buildozer android debug
 
 # Or build release AAB
 buildozer android release
+```
+
+### Alternative Build (if C compiler error occurs)
+
+If you encounter the "C compiler cannot create executables" error:
+
+```bash
+# Use the provided build script that sets compiler paths explicitly
+./build_fix.sh
+```
+
+Or manually set environment variables:
+
+```bash
+export CC=/home/runner/.buildozer/android/platform/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi21-clang
+export CXX=/home/runner/.buildozer/android/platform/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi21-clang++
+export AR=/home/runner/.buildozer/android/platform/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar
+export RANLIB=/home/runner/.buildozer/android/platform/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ranlib
+
+buildozer android clean
+buildozer android debug
 ```
 
 ## Testing Instructions
