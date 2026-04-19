@@ -12,7 +12,27 @@ configure: error: C compiler cannot create executables
 
 ## Решение
 
-### Вариант 1: Использование скрипта сборки (рекомендуется)
+### Вариант 1: Обновление GitHub Actions workflow (рекомендуется для CI/CD)
+
+В файл `.github/workflows/build.yml` добавлен шаг явной настройки компилятора:
+
+```yaml
+- name: Configure C compiler for NDK r25b
+  run: |
+    export CC=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang
+    export CXX=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang++
+    export AR=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar
+    export RANLIB=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ranlib
+    export STRIP=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip
+
+    echo "CC=$CC" >> $GITHUB_ENV
+    echo "CXX=$CXX" >> $GITHUB_ENV
+    echo "AR=$AR" >> $GITHUB_ENV
+    echo "RANLIB=$RANLIB" >> $GITHUB_ENV
+    echo "STRIP=$STRIP" >> $GITHUB_ENV
+```
+
+### Вариант 2: Использование скрипта сборки (для локальной разработки)
 
 Запустите скрипт `build_fix.sh`, который явно указывает пути к компиляторам:
 
@@ -20,22 +40,23 @@ configure: error: C compiler cannot create executables
 ./build_fix.sh
 ```
 
-### Вариант 2: Ручная установка переменных окружения
+### Вариант 3: Ручная установка переменных окружения
 
 Перед запуском buildozer установите переменные окружения:
 
 ```bash
-export CC=/home/runner/.buildozer/android/platform/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi21-clang
-export CXX=/home/runner/.buildozer/android/platform/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi21-clang++
-export AR=/home/runner/.buildozer/android/platform/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar
-export RANLIB=/home/runner/.buildozer/android/platform/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ranlib
-export STRIP=/home/runner/.buildozer/android/platform/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip
+export ANDROID_NDK_HOME=$HOME/.buildozer/android/platform/android-ndk-r25b
+export CC=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang
+export CXX=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang++
+export AR=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar
+export RANLIB=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ranlib
+export STRIP=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip
 
 buildozer android clean
 buildozer android debug
 ```
 
-### Вариант 3: Обновление python-for-android
+### Вариант 4: Обновление python-for-android
 
 Обновите python-for-android до последней версии develop:
 
@@ -43,22 +64,17 @@ buildozer android debug
 pip install --upgrade git+https://github.com/kivy/python-for-android.git@develop
 ```
 
-### Вариант 4: Изменение архитектуры сборки
-
-Если проблема сохраняется, попробуйте собрать только для arm64-v8a:
-
-В файле `buildozer.spec` измените:
-```spec
-android.archs = arm64-v8a
-```
-
 ## Дополнительные исправления в buildozer.spec
 
-В файл `buildozer.spec` были внесены следующие изменения:
+В файл `buildozer.spec` уже внесены следующие изменения:
 
-1. Добавлен флаг `--disable-ndk-deployment` в `p4a.extra_args`
-2. Добавлена опция `p4a.autofix = True` для автоматического исправления проблем
-3. Исключены директории сборки из исходников
+1. `p4a.branch = develop` - используется ветка develop python-for-android с лучшей поддержкой NDK r25b
+2. `android.ndk = 25b` - стабильная версия NDK для python-for-android
+3. `android.archs = arm64-v8a` - сборка только для 64-битной архитектуры ARM
+4. `android.copy_libs = 1` - копирование библиотек вместо создания libpymodules.so
+5. `p4a.local_recipes = local_recipes` - использование локальных рецептов для совместимости
+6. `android.enable_androidx = True` - поддержка AndroidX для современных версий Android
+7. `android.request_legacy_external_storage = True` - совместимость с Android 10-12
 
 ## Проверка после сборки
 
