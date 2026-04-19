@@ -38,7 +38,7 @@ version = 0.1.0
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
 # python3 resolves to Python 3.11 in current python-for-android toolchain
-requirements = python3,kivy==2.3.0,rapidfuzz,sqlite3
+requirements = python3,kivy==2.3.0,rapidfuzz,sqlite3,openssl
 
 # (str) Python version to use (explicit specification for Android builds)
 python.version = 3.11
@@ -115,7 +115,8 @@ android.minapi = 21
 #android.sdk = 20
 
 # (str) Android NDK version to use
-android.ndk = 27
+# NDK 25 is more stable for python-for-android builds
+android.ndk = 25b
 
 # (int) Android NDK API to use. This is the minimum API your app will support, it should usually match android.minapi.
 android.ndk_api = 21
@@ -291,7 +292,7 @@ android.copy_libs = 1
 
 # (list) The Android archs to build for, choices: armeabi-v7a, arm64-v8a, x86, x86_64
 # In past, was `android.arch` as we weren't supporting builds for multiple archs at the same time.
-android.archs = arm64-v8a
+android.archs = arm64-v8a, armeabi-v7a
 
 # (int) overrides automatic versionCode computation (used in build.gradle)
 # this is not the same as app version and should only be edited if you know what you're doing
@@ -365,7 +366,7 @@ p4a.setup_py = false
 
 # (str) extra command line arguments to pass when invoking pythonforandroid.toolchain
 # Additional arguments for Android 13+ compatibility and proper library loading
-p4a.extra_args = --allow-min-api-21
+p4a.extra_args = --allow-min-api-21 --ndk-api=21 --debug
 
 
 
